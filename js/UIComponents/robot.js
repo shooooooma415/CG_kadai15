@@ -23,6 +23,7 @@ export function createRobot(scene,startX,startY,startZ) {
   // 体の作成
   const body = new THREE.Mesh(new THREE.BoxGeometry(18, 14, 12), bodyMaterial);
   body.position.set(0, -10, 0);
+  
 
   const cannon = new THREE.Mesh(new THREE.CylinderGeometry(3, 3, 10, 32), cannonMaterial);
   cannon.position.set(0, -10, -6);
@@ -30,8 +31,10 @@ export function createRobot(scene,startX,startY,startZ) {
 
   const Body = new THREE.Group();
   Body.add(body, cannon);
+  Body.scale.set(0.01, 0.01, 0.01);
 
   Head.position.set(0, 5, 0);
+  
 
   // 足の作成
   const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 20, 16), legMaterial);
@@ -68,7 +71,7 @@ export function createRobot(scene,startX,startY,startZ) {
   Robot.add(Head, Body, Legs, Arms);
 
   Robot.position.set(startX, startY, startZ);
-  Robot.scale.set(0.03, 0.03, 0.03);
+  Robot.scale.set(0.01, 0.01, 0.01);
   
   scene.add(Robot);
 
