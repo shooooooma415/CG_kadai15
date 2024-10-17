@@ -1,4 +1,4 @@
-export function createRobot(scene) {
+export function createRobot(scene,startX,startY,startZ) {
   // マテリアルを作成
   const headMaterial = new THREE.MeshNormalMaterial({ color: 0xff0000 });
   const eyesMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff46 });
@@ -66,7 +66,10 @@ export function createRobot(scene) {
   // ロボット全体をグループ化
   const Robot = new THREE.Group();
   Robot.add(Head, Body, Legs, Arms);
-  Robot.position.y = 20;
+
+  Robot.position.set(startX, startY, startZ);
+  Robot.scale.set(0.03, 0.03, 0.03);
+  
   scene.add(Robot);
 
   return Robot;

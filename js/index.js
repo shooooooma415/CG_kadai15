@@ -1,32 +1,43 @@
+import { createMaze3D } from './Action/Maze/createMaze3D.js';
 import { createRobot } from './UIComponents/robot.js';
-import { createCamera, addLights } from './UIComponents/environment.js';
+import { handleWalk } from './Action/Robot/walk.js';
 import { fireCannon, animateBullets } from './Action/Robot/canon.js';
 import { swingSword } from './Action/Robot/sword.js';
 import { jump } from './Action/Robot/jump.js';
-import { handleWalk } from './Action/Robot/walk.js';
+import { resetRobotPosition } from './Action/Robot/reset.js';
+import { createCamera, updateCameraPosition, addLights } from './UIComponents/environment.js';
+
+let renderer, camera, scene;
 
 window.addEventListener("DOMContentLoaded", init);
 
 function init() {
-  const width = 1500;
-  const height = 800;
+  const width = window.innerWidth;
+  const height = window.innerHeight;
 
-  // レンダラーを作成 
-  const renderer = new THREE.WebGLRenderer({
+  // レンダラーを作成
+  renderer = new THREE.WebGLRenderer({
     canvas: document.querySelector("#myCanvas")
   });
-  renderer.setSize(width, height); /* ウィンドウサイズの設定 */
-  renderer.setClearColor(0x000000); /* 背景色の設定 */
+  renderer.setSize(width, height);
+  renderer.setClearColor(0x000000);
 
-  // シーンを作成 
-  const scene = new THREE.Scene();
+  // シーンを作成
+  scene = new THREE.Scene();
 
-  // 環境設定からカメラと光源を取得
-  const camera = createCamera(width, height);
+  // カメラを作成
+  camera = createCamera();
+
+  // 光源を追加
   addLights(scene);
 
-  // ロボットを作成してシーンに追加
-  const Robot = createRobot(scene);
+  // 3D迷路を作成
+  createMaze3D(scene);
+
+  // ロボットを迷路のスタート位置に追加
+  const startX = 1; // 迷路のスタート位置
+  const startZ = 1;
+  const Robot = createRobot(scene, startX, 1, startZ);
 
   let sword = Robot.children[3].children[2]; // 剣の参照
   let isSwordEquipped = true;
@@ -56,8 +67,8 @@ function init() {
 
   // MediaPipe Hand Trackingの初期化
   const videoElement = document.createElement('video');
-  videoElement.style.width = "320px";
-  videoElement.style.height = "240px";
+  videoElement.style.width = " 800px";
+  videoElement.style.height = "500px";
   videoElement.style.position = "absolute";
   videoElement.style.right = "0";
   videoElement.style.bottom = "0";
@@ -65,7 +76,7 @@ function init() {
   document.body.appendChild(videoElement);
 
   const hands = new Hands({
-    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
   });
 
   hands.setOptions({
@@ -120,10 +131,14 @@ function init() {
     if (event.key === 'c') {  // 'C' キーで大砲を撃つ
       fireCannon(scene, Robot, bullets, bulletMaterial);
     }
+    if (event.key === 'r') { // 'R' キーでロボットの位置をリセット
+      resetRobotPosition(Robot, () => renderer.render(scene, camera));
+    }
   });
 
   // レンダリング関数
   function render() {
+    updateCameraPosition(camera, Robot); // カメラをロボットに追従させる
     renderer.render(scene, camera);
     requestAnimationFrame(render);
   }
@@ -132,3 +147,12 @@ function init() {
   animateBullets(bullets, scene);
   render();
 }
+
+// ウィンドウリサイズに対応
+window.addEventListener('resize', () => {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  renderer.setSize(width, height);
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+});
