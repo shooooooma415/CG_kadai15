@@ -31,7 +31,6 @@ export function createRobot(scene,startX,startY,startZ) {
 
   const Body = new THREE.Group();
   Body.add(body, cannon);
-  Body.scale.set(0.01, 0.01, 0.01);
 
   Head.position.set(0, 5, 0);
   

@@ -1,12 +1,9 @@
 import { createMaze, maze, mazel } from './createMaze2D.js';
 
 export function createMaze3D(scene) {
-    createMaze(); // 2D迷路を生成する
+    createMaze();
 
-    // 壁の配列を初期化
     const walls = [];
-
-    // 壁のジオメトリとマテリアル
     const wallGeometry = new THREE.BoxGeometry(1, 2, 1);
     const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
 
@@ -22,5 +19,5 @@ export function createMaze3D(scene) {
         }
     }
 
-    return walls;  // walls配列を返す
+    return walls;
 }

@@ -12,12 +12,9 @@ export function checkCollision(x, z, walls) {
         robotBox.setFromCenterAndSize(new THREE.Vector3(x, 1, z), new THREE.Vector3(1, 2, 1));
 
         if (wallBox.intersectsBox(robotBox)) {
-            console.log("true")
-            return true;  // 壁と衝突している場合
-            
+            return true;
+
         }
     }
-    console.log("false")
-    return false;  // 衝突していない場合
+    return false;
 }
-

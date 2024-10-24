@@ -29,7 +29,7 @@ export function handleWalk(Robot, leftLeg, rightLeg, leftArm, rightArm, isWalkin
             const newX = Robot.position.x + deltaX;
             const newZ = Robot.position.z + deltaZ;
 
-            if (!checkCollision(newX, newZ, walls)) {
+            if (checkCollision(newX, newZ, walls)) {
                 Robot.position.x = newX;
                 Robot.position.z = newZ;
             }
