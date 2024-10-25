@@ -40,8 +40,8 @@ export function handleWalk(Robot, leftLeg, rightLeg, leftArm, rightArm, isWalkin
                 }
             } else {
                 // 衝突する壁がない場合は自由に進む
-                Robot.position.z -= Math.cos(Robot.rotation.y) * speedFromHand.value * 0.002;
-                Robot.position.x -= Math.sin(Robot.rotation.y) * speedFromHand.value * 0.002;
+                Robot.position.z -= Math.cos(Robot.rotation.y) * speedFromHand.value * 0.005;
+                Robot.position.x -= Math.sin(Robot.rotation.y) * speedFromHand.value * 0.005;
             }
 
 
