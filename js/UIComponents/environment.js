@@ -27,3 +27,7 @@ export function addLights(scene) {
   const ambientLight = new THREE.AmbientLight(0xffffff, 1);
   scene.add(ambientLight);
 }
+
+export function changeBackground(renderer) {
+  renderer.setClearColor(0x87CEEB);
+}
