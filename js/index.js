@@ -5,7 +5,7 @@ import { fireCannon, animateBullets } from './Action/Robot/canon.js';
 import { swingSword } from './Action/Robot/sword.js';
 import { jump } from './Action/Robot/jump.js';
 import { resetRobotPosition } from './Action/Robot/reset.js';
-import { createCamera, updateCameraPosition, addLights } from './UIComponents/environment.js';
+import { createCamera, updateCameraPosition, addLights, changeBackground } from './UIComponents/environment.js';
 
 let renderer, camera, scene;
 
@@ -24,6 +24,7 @@ function init() {
     scene = new THREE.Scene();
     camera = createCamera();
     addLights(scene);
+    changeBackground(renderer);
 
     const walls = createMaze3D(scene);
 
@@ -89,8 +90,8 @@ function init() {
     function onResults(results) {
         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
             const handLandmarks = results.multiHandLandmarks[0];
-            const handX = handLandmarks[0].x; 
-            const handY = handLandmarks[0].y; 
+            const handX = handLandmarks[0].x;
+            const handY = handLandmarks[0].y;
 
             const rotationFromHand = (handX - 0.5) * Math.PI * 2;
             targetRotation.value = rotationFromHand;
@@ -106,12 +107,12 @@ function init() {
 
 
     document.addEventListener("keydown", (event) => {
-        if (event.key === ' ') {  
+        if (event.key === ' ') {
             if (isSwordEquipped) {
                 swingSword(sword);
             }
         }
-        if (event.key === 'j') { 
+        if (event.key === 'j') {
             jump(Robot, isJumping, velocityY, gravity, jumpStrength);
         }
         if (event.key === 'c') {
