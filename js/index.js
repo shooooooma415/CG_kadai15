@@ -8,6 +8,7 @@ import { resetRobotPosition } from './Action/Robot/reset.js';
 import { createCamera, updateCameraPosition, addLights, changeBackground } from './UIComponents/environment.js';
 
 let renderer, camera, scene;
+let isControlMode = false;
 
 window.addEventListener("DOMContentLoaded", init);
 
@@ -27,7 +28,6 @@ function init() {
     changeBackground(renderer);
 
     const walls = createMaze3D(scene);
-
 
     const startX = 1;
     const startZ = 1;
@@ -57,12 +57,12 @@ function init() {
     let speedFromHand = { value: 0 };
 
     const videoElement = document.createElement('video');
-    videoElement.style.width = "800px";
-    videoElement.style.height = "500px";
+    videoElement.style.width = "600px";
+    videoElement.style.height = "400px";
     videoElement.style.position = "absolute";
     videoElement.style.right = "0";
     videoElement.style.bottom = "0";
-    videoElement.style.transform = "scaleX(-1)"; // 鏡のように反転
+    videoElement.style.transform = "scaleX(-1)";
     document.body.appendChild(videoElement);
 
     const hands = new Hands({
@@ -96,15 +96,14 @@ function init() {
             const rotationFromHand = (handX - 0.5) * Math.PI * 2;
             targetRotation.value = rotationFromHand;
 
-            speedFromHand.value = 1 - handY; // Y軸の動きに基づいて速度を調整
+            speedFromHand.value = 1 - handY;
 
-            isWalking.value = true; // 手が認識されたら歩行
+            isWalking.value = true;
             handleWalk(Robot, leftLeg, rightLeg, leftArm, rightArm, isWalking, currentLegRotation, legRotationDirection, maxLegRotation, targetRotation, speedFromHand, renderer, scene, camera, walls);
         } else {
             isWalking.value = false;
         }
     }
-
 
     document.addEventListener("keydown", (event) => {
         if (event.key === ' ') {
@@ -113,7 +112,10 @@ function init() {
             }
         }
         if (event.key === 'j') {
-            jump(Robot, isJumping, velocityY, gravity, jumpStrength);
+            if (!isJumping.value) {
+                isJumping.value = true;
+                jump(Robot, isJumping, velocityY, gravity, jumpStrength);
+            }
         }
         if (event.key === 'c') {
             fireCannon(scene, Robot, bullets, bulletMaterial);
@@ -121,9 +123,29 @@ function init() {
         if (event.key === 'r') {
             resetRobotPosition(Robot, () => renderer.render(scene, camera));
         }
+        if (event.key === 's') {
+            isControlMode = !isControlMode;
+        }
+
+        // 手動操作モードでの矢印キー操作
+        if (isControlMode && !isJumping.value) {
+            if (event.key === 'ArrowUp') {
+                Robot.position.z -= Math.cos(Robot.rotation.y) * 0.05;
+                Robot.position.x -= Math.sin(Robot.rotation.y) * 0.05;
+            }
+            if (event.key === 'ArrowDown') {
+                Robot.position.z += Math.cos(Robot.rotation.y) * 0.05;
+                Robot.position.x += Math.sin(Robot.rotation.y) * 0.05;
+            }
+            if (event.key === 'ArrowLeft') {
+                Robot.rotation.y += 0.05;
+            }
+            if (event.key === 'ArrowRight') {
+                Robot.rotation.y -= 0.05;
+            }
+        }
     });
 
-    // レンダリング関数
     function render() {
         updateCameraPosition(camera, Robot);
         renderer.render(scene, camera);
@@ -134,7 +156,6 @@ function init() {
     render();
 }
 
-// ウィンドウリサイズに対応
 window.addEventListener('resize', () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
