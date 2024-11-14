@@ -31,6 +31,8 @@ function init() {
 
     const startX = 1;
     const startZ = 1;
+    const goalX = 19;  // ゴールのX位置（右上）
+    const goalZ = 19;  // ゴールのZ位置（右上）
     const Robot = createRobot(scene, startX, 1, startZ);
 
     let sword = Robot.children[3].children[2];
@@ -127,40 +129,57 @@ function init() {
             isControlMode = !isControlMode;
         }
 
-        // 手動操作モードでの矢印キー操作
         if (isControlMode && !isJumping.value) {
-            // 足と腕の動きを追加
-            leftLeg.rotation.x += legRotationDirection.value * 0.05;
-            rightLeg.rotation.x -= legRotationDirection.value * 0.05;
-            leftArm.rotation.x -= legRotationDirection.value * 0.05;
-            rightArm.rotation.x += legRotationDirection.value * 0.05;
-            currentLegRotation.value += 0.05;
-
-            // 回転の制限
-            if (currentLegRotation.value >= maxLegRotation || currentLegRotation.value <= -maxLegRotation) {
-                legRotationDirection.value *= -1;
-                currentLegRotation.value = 0;
-            }
-
+            let newX, newZ;
             if (event.key === 'ArrowUp') {
-                Robot.position.z -= Math.cos(Robot.rotation.y) * 0.05;
-                Robot.position.x -= Math.sin(Robot.rotation.y) * 0.05;
-            }
-            if (event.key === 'ArrowDown') {
-                Robot.position.z += Math.cos(Robot.rotation.y) * 0.05;
-                Robot.position.x += Math.sin(Robot.rotation.y) * 0.05;
-            }
-            if (event.key === 'ArrowLeft') {
+                newX = Robot.position.x - Math.sin(Robot.rotation.y) * 0.1;
+                newZ = Robot.position.z - Math.cos(Robot.rotation.y) * 0.1;
+            } else if (event.key === 'ArrowDown') {
+                newX = Robot.position.x + Math.sin(Robot.rotation.y) * 0.1;
+                newZ = Robot.position.z + Math.cos(Robot.rotation.y) * 0.1;
+            } else if (event.key === 'ArrowLeft') {
                 Robot.rotation.y += 0.05;
-            }
-            if (event.key === 'ArrowRight') {
+            } else if (event.key === 'ArrowRight') {
                 Robot.rotation.y -= 0.05;
+            }
+
+            if (newX !== undefined && newZ !== undefined) {
+                const raycaster = new THREE.Raycaster();
+                const direction = new THREE.Vector3(newX - Robot.position.x, 0, newZ - Robot.position.z).normalize();
+                raycaster.set(Robot.position, direction);
+                const intersections = raycaster.intersectObjects(walls);
+
+                if (intersections.length === 0 || intersections[0].distance > 0.1) {
+                    Robot.position.set(newX, Robot.position.y, newZ);
+                } else {
+                    console.log("衝突しました。");
+                }
             }
         }
     });
 
+    function checkGoal() {
+        const distanceToGoal = Math.sqrt((Robot.position.x - goalX) ** 2 + (Robot.position.z - goalZ) ** 2);
+        if (distanceToGoal < 1) {
+            const goalMessage = document.createElement("div");
+            goalMessage.textContent = "ゴール!";
+            goalMessage.style.position = "absolute";
+            goalMessage.style.top = "50%";
+            goalMessage.style.left = "50%";
+            goalMessage.style.transform = "translate(-50%, -50%)";
+            goalMessage.style.fontSize = "3em";
+            goalMessage.style.color = "yellow";
+            document.body.appendChild(goalMessage);
+
+            setTimeout(() => {
+                location.reload();
+            }, 5000);
+        }
+    }
+
     function render() {
         updateCameraPosition(camera, Robot);
+        checkGoal();
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
