@@ -129,6 +129,19 @@ function init() {
 
         // 手動操作モードでの矢印キー操作
         if (isControlMode && !isJumping.value) {
+            // 足と腕の動きを追加
+            leftLeg.rotation.x += legRotationDirection.value * 0.05;
+            rightLeg.rotation.x -= legRotationDirection.value * 0.05;
+            leftArm.rotation.x -= legRotationDirection.value * 0.05;
+            rightArm.rotation.x += legRotationDirection.value * 0.05;
+            currentLegRotation.value += 0.05;
+
+            // 回転の制限
+            if (currentLegRotation.value >= maxLegRotation || currentLegRotation.value <= -maxLegRotation) {
+                legRotationDirection.value *= -1;
+                currentLegRotation.value = 0;
+            }
+
             if (event.key === 'ArrowUp') {
                 Robot.position.z -= Math.cos(Robot.rotation.y) * 0.05;
                 Robot.position.x -= Math.sin(Robot.rotation.y) * 0.05;
