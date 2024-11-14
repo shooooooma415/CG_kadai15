@@ -31,8 +31,6 @@ function init() {
 
     const startX = 1;
     const startZ = 1;
-    const goalX = 19;  // ゴールのX位置（右上）
-    const goalZ = 19;  // ゴールのZ位置（右上）
     const Robot = createRobot(scene, startX, 1, startZ);
 
     let sword = Robot.children[3].children[2];
@@ -90,7 +88,7 @@ function init() {
     cameraUtils.start();
 
     function onResults(results) {
-        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        if (!isControlMode && results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
             const handLandmarks = results.multiHandLandmarks[0];
             const handX = handLandmarks[0].x;
             const handY = handLandmarks[0].y;
@@ -138,9 +136,9 @@ function init() {
                 newX = Robot.position.x + Math.sin(Robot.rotation.y) * 0.1;
                 newZ = Robot.position.z + Math.cos(Robot.rotation.y) * 0.1;
             } else if (event.key === 'ArrowLeft') {
-                Robot.rotation.y += 0.05;
+                Robot.rotation.y += 0.1;
             } else if (event.key === 'ArrowRight') {
-                Robot.rotation.y -= 0.05;
+                Robot.rotation.y -= 0.1;
             }
 
             if (newX !== undefined && newZ !== undefined) {
@@ -158,28 +156,8 @@ function init() {
         }
     });
 
-    function checkGoal() {
-        const distanceToGoal = Math.sqrt((Robot.position.x - goalX) ** 2 + (Robot.position.z - goalZ) ** 2);
-        if (distanceToGoal < 1) {
-            const goalMessage = document.createElement("div");
-            goalMessage.textContent = "ゴール!";
-            goalMessage.style.position = "absolute";
-            goalMessage.style.top = "50%";
-            goalMessage.style.left = "50%";
-            goalMessage.style.transform = "translate(-50%, -50%)";
-            goalMessage.style.fontSize = "3em";
-            goalMessage.style.color = "yellow";
-            document.body.appendChild(goalMessage);
-
-            setTimeout(() => {
-                location.reload();
-            }, 5000);
-        }
-    }
-
     function render() {
         updateCameraPosition(camera, Robot);
-        checkGoal();
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
